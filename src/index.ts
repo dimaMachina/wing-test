@@ -35,17 +35,17 @@ const start = async () => {
   let currentPalette = 1
   let numOfParcels = 0
 
-  const getParcelsForOrder = async (order: Order) => {
+  const getParcelsForOrder = (order: Order) => {
     console.info(`Creating parcels for order with id ${order.id}`)
 
-    const parcelsForOrder: Parcel[] = []
+    const parcelsForOrder = []
 
     for (const { item_id, quantity } of order.items) {
       const item = items[item_id]
       for (let i = 0; i < quantity; i++) {
         // find parcel where weight if less then 30 kg plus weight of current item
         const matchedParcel = parcelsForOrder.find(
-          (parcel) => Number(parcel.weight) + Number(item.weight) <= 30
+          (parcel) => parcel.weight + Number(item.weight) <= 30
         )
 
         if (matchedParcel) {
@@ -75,7 +75,6 @@ const start = async () => {
           order_id: order.id,
           items: [{ item_id, quantity: 1 }],
           weight: Number(item.weight),
-          tracking_id: await generateTrackingId(),
           palette_number: currentPalette,
         })
       }
@@ -85,12 +84,18 @@ const start = async () => {
 
   const parcels: Parcel[] = []
 
+  Object.values(orders).forEach((order) => {
+    const parcelsForOrders = getParcelsForOrder(order) as Parcel[]
+    parcels.push(...parcelsForOrders)
+  })
+
   await Promise.all(
-    Object.values(orders).map((order) =>
-      getParcelsForOrder(order).then((parcelsForOrder) => {
-        parcels.push(...parcelsForOrder)
-      })
-    )
+    parcels.map(async (parcel: Parcel) => {
+      return {
+        ...parcel,
+        tracking_id: await generateTrackingId(),
+      }
+    })
   )
 
   let total = 0
