@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "5bb619e49593e5d3cbaa0b52",
+      "name": "Flowers",
+      "weight": "1.5"
+    },
+    {
+      "id": "5bb619e4ebdccb9218aa9dcb",
+      "name": "Chair",
+      "weight": "8.4"
+    },
+    {
+      "id": "5bb619e4911037797edae511",
+      "name": "TV",
+      "weight": "20.8"
+    },
+    {
+      "id": "5bb619e4504f248e1be543d3",
+      "name": "Skateboard",
+      "weight": "5.9"
+    },
+    {
+      "id": "5bb619e40fee29e3aaf09759",
+      "name": "Donald Trump statue",
+      "weight": "18.4"
+    },
+    {
+      "id": "5bb619e44251009d72e458b9",
+      "name": "Molkkÿ game",
+      "weight": "17.9"
+    },
+    {
+      "id": "5bb619e439d3e99e2e25848d",
+      "name": "Helmet",
+      "weight": "22.7"
+    }
+  ]
+}
