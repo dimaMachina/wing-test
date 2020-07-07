@@ -58,7 +58,7 @@ const start = async () => {
           } else {
             matchedParcel.items.push({ item_id, quantity: 1 })
           }
-          // update weight as string 🥴 because of type definition
+          // update weight
           matchedParcel.weight += Number(item.weight)
           continue
         }
