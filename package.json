@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
     "start": "npm run build && node dist",
+    "test": "jest --watchAll --no-cache",
     "build": "tsc"
   },
   "keywords": [],
@@ -16,5 +17,17 @@
     "axios": "^0.19.2",
     "ts-node-dev": "^1.0.0-pre.50",
     "typescript": "^3.9.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.0",
+    "jest": "^26.0.1",
+    "ts-jest": "^26.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
+  "engines": {
+    "node": "^13.12.0"
   }
 }

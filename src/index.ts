@@ -1,24 +1,4 @@
-import { promises as fs } from 'fs'
-import axios from 'axios'
-import { Item, Order, Parcel } from './interfaces'
-
-const generateTrackingId = async (): Promise<string> => {
-  const response = await axios.post('https://helloacm.com/api/random/?n=15')
-  return response.data
-}
-
-const parseFile = async <T extends { id: string }>(
-  path: string,
-  fieldName: string
-) => {
-  const fileData = await fs.readFile(path, 'utf-8')
-  const parsedData = JSON.parse(fileData)[fieldName] as T[]
-
-  return parsedData.reduce((acc: { [id: string]: T }, doc) => {
-    acc[doc.id] = doc
-    return acc
-  }, {})
-}
+import { createParcels } from './createParcels'
 
 const getPrice = (weight: number) => {
   if (weight > 20) return 10
@@ -28,76 +8,7 @@ const getPrice = (weight: number) => {
   return 1
 }
 
-const start = async () => {
-  const items = await parseFile<Item>('./src/data/items.json', 'items')
-  const orders = await parseFile<Order>('./src/data/orders.json', 'orders')
-
-  let currentPalette = 1
-  let numOfParcels = 0
-
-  const getParcelsForOrder = (order: Order) => {
-    console.info(`Creating parcels for order with id ${order.id}`)
-
-    const parcelsForOrder = []
-
-    for (const { item_id, quantity } of order.items) {
-      const item = items[item_id]
-      for (let i = 0; i < quantity; i++) {
-        // find parcel where weight if less then 30 kg plus weight of current item
-        const matchedParcel = parcelsForOrder.find(
-          (parcel) => parcel.weight + Number(item.weight) <= 30
-        )
-
-        if (matchedParcel) {
-          // check if there is item with matched id
-          const itemExists = matchedParcel.items.find(
-            (item) => item.item_id === item_id
-          )
-          if (itemExists) {
-            itemExists.quantity += 1
-          } else {
-            matchedParcel.items.push({ item_id, quantity: 1 })
-          }
-          // update weight
-          matchedParcel.weight += Number(item.weight)
-          continue
-        }
-
-        if (numOfParcels < 15) {
-          numOfParcels += 1
-        } else {
-          currentPalette++
-          numOfParcels = 1
-        }
-
-        // create new parcel
-        parcelsForOrder.push({
-          order_id: order.id,
-          items: [{ item_id, quantity: 1 }],
-          weight: Number(item.weight),
-          palette_number: currentPalette,
-        })
-      }
-    }
-    return parcelsForOrder
-  }
-
-  const parcels: Parcel[] = []
-
-  Object.values(orders).forEach((order) => {
-    const parcelsForOrders = getParcelsForOrder(order) as Parcel[]
-    parcels.push(...parcelsForOrders)
-  })
-
-  await Promise.all(
-    parcels.map(async (parcel: Parcel) => {
-      return {
-        ...parcel,
-        tracking_id: await generateTrackingId(),
-      }
-    })
-  )
-
+createParcels().then((parcels) => {
   let total = 0
 
   parcels.forEach((parcel) => {
@@ -105,7 +16,6 @@ const start = async () => {
     console.log(parcel, `Price: ${priceForParcel} €`)
     total += priceForParcel
   })
-  console.log(`Total profit: ${total} €`)
-}
 
-start().catch(console.error)
+  console.log(`Total profit: ${total} €`)
+})
